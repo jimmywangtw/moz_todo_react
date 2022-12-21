@@ -1,53 +1,52 @@
+import React, { useState } from 'react';
+import { nanoid } from 'nanoid';
+import PropTypes from 'prop-types';
 import Todo from './components/Todo';
 import Form from './components/Form';
 import FilterButton from './components/FilterButton';
-import React, { useState } from 'react';
-import { nanoid } from 'nanoid';
 
 const FILTER_MAP = {
   All: () => true,
   Active: (task) => !task.completed,
   Completed: (task) => task.completed,
-}
+};
 const FILTER_NAMES = Object.keys(FILTER_MAP);
 
-
-export default function App(props) {
-  const [tasks, setTasks] = useState(props.tasks);
+export default function App({ tasks }) {
+  const [AppTasks, setTasks] = useState(tasks);
   const [filter, setFilter] = useState('All');
 
   const toggleTaskCompleted = (id) => {
-    const updatedTasks = tasks.map(task => {
+    const updatedTasks = AppTasks.map((task) => {
       if (id === task.id) {
         return {
           ...task,
           completed: !task.completed,
-        }
+        };
       }
       return task;
-    })
+    });
     setTasks(updatedTasks);
-  }
+  };
 
   const deleteTask = (id) => {
-    const remainingTask = tasks.filter(task => id !== task.id);
+    const remainingTask = AppTasks.filter((task) => id !== task.id);
     setTasks(remainingTask);
-  }
+  };
 
   const editTask = (id, newName) => {
-    const editedTaskList = tasks.map(task => {
+    const editedTaskList = AppTasks.map((task) => {
       if (id === task.id) {
-        return { ...task, name: newName }
+        return { ...task, name: newName };
       }
       return task;
-    })
-    setTasks(editedTaskList)
-  }
+    });
+    setTasks(editedTaskList);
+  };
 
-
-  const taskList = tasks
+  const taskList = AppTasks
     .filter(FILTER_MAP[filter])
-    .map(task =>
+    .map((task) => (
       <Todo
         id={task.id}
         name={task.name}
@@ -56,23 +55,24 @@ export default function App(props) {
         toggleTaskCompleted={toggleTaskCompleted}
         deleteTask={deleteTask}
         editTask={editTask}
-      />);
+      />
+    ));
 
   const addTask = (name) => {
     const newTask = { id: `todo-${nanoid()}`, name, completed: false };
-    setTasks([...tasks, newTask])
-  }
+    setTasks([...tasks, newTask]);
+  };
 
   const headingText = `${taskList.length} tasks remaining`;
 
-  const filterList = FILTER_NAMES.map((name) =>
+  const filterList = FILTER_NAMES.map((name) => (
     <FilterButton
       name={name}
       key={name}
       isPressed={name === filter}
       setFilter={setFilter}
     />
-  )
+  ));
 
   return (
     <div className="todoapp stack-large">
@@ -85,12 +85,18 @@ export default function App(props) {
         {headingText}
       </h2>
       <ul
-
         className="todo-list stack-large stack-exception"
-
       >
         {taskList}
       </ul>
     </div>
   );
 }
+
+App.propTypes = {
+  tasks: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    completed: PropTypes.bool.isRequired,
+  }).isRequired,
+};
